@@ -13,3 +13,6 @@ This file runs an algorithm referencing the methods of `wiki-access.py` to indef
 
 ## process.py
 Once enough pages have been collected in the `data` folder, the `cleanup()` method in this file can be called from the correct working directory to read all of the `.json` files and simplify to a form without any special wikitext tags or text formatting. This will be the basis for different NLP algorithms. These simplified files will be stored in a folder called `process`.
+
+## main.py
+This file assumes that you have a folder called `process` which has very many text files as produces by the `cleanup()` method in process.py. With this data, main.py generates a list of every article that has been accessed and creates an entity object for each one.
