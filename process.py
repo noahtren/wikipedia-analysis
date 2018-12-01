@@ -16,7 +16,7 @@ def raw_text(name):
     f = open("data/{}.json".format(name), "r")
     text = json.loads(f.read())["parse"]["wikitext"]["*"]
     if text[:9].lower() == "#redirect":
-        return
+        return None
     # eliminate headers
     if text[0] in "{\}/|[]_\n":
         text = re.search(r"[}\]|]\n+([^ _\n<>*{}|[\][a-z\]](?s).*)", text).group(1)
