@@ -23,4 +23,4 @@ An additional method, `consolidate()` can be run after the `cleanup()` method to
 This file simply calls the methods from process.py. I have generated a conslidated data file with information from 3,122 wikipedia articles which can be accessed [here](http://noahtrenaman.com/media/data.txt). This is the raw text that will be fed into the Recurrent Neural Network.
 
 ## Processing
-todo
+The files under char-rnn-tensorflow trains a character-based recurrent neural network on the data from Wikipedia. The code comes from sherjilozair and was inspired by Andrej Karpathy's character based RNN. You can find documentation for these files [here](https://github.com/sherjilozair/char-rnn-tensorflow).
