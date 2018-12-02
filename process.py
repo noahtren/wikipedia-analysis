@@ -8,8 +8,9 @@ from tqdm import tqdm
 def vocab_from_wiki():
     cwd = os.getcwd()
     vocab = []
-    for filename in os.listdir(cwd+"/data"):
-        vocab.append(filename.replace(".json", ""))
+    for filename in os.scandir(cwd+"/data"):
+        f = filename.name
+        vocab.append(f.replace(".json", ""))
     return vocab
 
 def raw_text(name):
@@ -19,14 +20,20 @@ def raw_text(name):
         return None
     # eliminate headers
     if text[0] in "{\}/|[]_\n":
-        text = re.search(r"[}\]|]\n+([^ _\n<>*{}|[\][a-z\]](?s).*)", text).group(1)
+        try:
+            text = re.search(r"[}\]|]\n+([^ _\n<>*{}|[\][a-z\]](?s).*)", text).group(1)
+        except AttributeError:
+            pass
     # eliminate brackets that link to other pages
-    result = re.search(r"(\[\[[^\[\]][^:\[\]]+?\|[^\[\]]*\]\])", text)
+    result = re.search(r"(\[\[[^\[\]][^:\[\]]+?\|[^\[\]]+\]\])", text)
     while result != None:
         string = result.group(1)
-        swap = re.search(r"\|(.*?)\]\]", string).group(1)
+        try:
+            swap = re.search(r"\|(.*?)\]\]", string).group(1)
+        except AttributeError:
+            break
         text = text.replace(string, swap)
-        result = re.search(r"(\[\[[^\[\]][^:\[\]]+?\|[^\[\]]*\]\])", text)
+        result = re.search(r"(\[\[[^\[\]][^:\[\]]+?\|[^\[\]]+\]\])", text)
     result = re.search(r"(\[\[[^\[\]][^:]+?\]\])", text)
     while result != None:
         string = result.group(1)
@@ -109,8 +116,38 @@ def raw_text(name):
         string = result.group(1)
         text = text.replace(string, "")
         result = re.search(r"(\[\[(?i)image.*?\]\])", text)
+    # remove wiki
+    result = re.search(r"(\[\[(?i)wiki.*?\]\])", text)
+    while result != None:
+        string = result.group(1)
+        text = text.replace(string, "")
+        result = re.search(r"(\[\[(?i)wiki.*?\]\])", text)
+    # remove pov
+    result = re.search(r"(\{\{(?i)pov.*?\}\})", text)
+    while result != None:
+        string = result.group(1)
+        text = text.replace(string, "")
+        result = re.search(r"(\\{(?i)pov.*?\}\})", text)
+    # remove citation
+    result = re.search(r"(\[\[(?i)cit(?s).*?\]\])", text)
+    while result != None:
+        string = result.group(1)
+        text = text.replace(string, "")
+        result = re.search(r"(\[\[(?i)cit(?s).*?\]\])", text)
+    # remove category
+    result = re.search(r"(\[\[(?i)cat.*?\]\])", text)
+    while result != None:
+        string = result.group(1)
+        text = text.replace(string, "")
+        result = re.search(r"(\[\[(?i)cat.*?\]\])", text)
+    # remove reflist
+    result = re.search(r"(\{\{(?i)refli.*?\}\})", text)
+    while result != None:
+        string = result.group(1)
+        text = text.replace(string, "")
+        result = re.search(r"(\\{(?i)refli.*?\}\})", text)
     # remove all text formatting
-    text = text.replace("&nbsp;", "")
+    text = text.replace("&nbsp;", "").replace("<big>", "").replace("</big>", "").replace("{","").replace("}","")
     text = text.replace("<small>", "").replace("</small>", "").replace("<sub>", "").replace("</sub>", "").replace("<sup>","").replace("</sup>","")
     return text
 
@@ -119,9 +156,20 @@ def cleanup():
     if not pathlib.Path("process").is_dir():
         os.mkdir("process")
     for word in tqdm(vocab):
-        if raw_text(word) != None:
-            f = codecs.open("process/{}.txt".format(word), "w", "utf-8")
-            f.write(raw_text(word))
+        raw = raw_text(word)
+        if raw != None:
+            f = codecs.open("process/{}.txt".format(word), "w+", "utf-8")
+            f.write(raw)
+
+def consolidate():
+    data = ""
+    for page in tqdm(vocab_from_wiki()):
+        try:
+            data = data + (codecs.open("process/{}.txt".format(page), "r", "utf-8").read())
+        except FileNotFoundError:
+            pass
+    f = codecs.open("data.txt", "w", "utf-8")
+    f.write(data)
 
 # todo
 # eliminate ref tags including contents
