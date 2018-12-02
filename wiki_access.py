@@ -99,10 +99,10 @@ def write_list(name, array):
 def restart():
     cwd = os.getcwd()
     if Path("data").exists():
-        for filename in os.listdir(cwd+"/data"):
+        for filename in os.scandir(cwd+"/data"):
             if Path(filename).is_file:
                 os.remove("data/"+filename)
         os.rmdir("data")
-    for filename in os.listdir(cwd):
+    for filename in os.scandir(cwd):
         if not filename.endswith(".py") and Path(filename).is_file():
             os.remove(filename)
