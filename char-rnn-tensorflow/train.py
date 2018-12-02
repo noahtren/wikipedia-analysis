@@ -17,7 +17,7 @@ parser.add_argument('--save_dir', type=str, default='save',
                     help='directory to store checkpointed models')
 parser.add_argument('--log_dir', type=str, default='logs',
                     help='directory to store tensorboard logs')
-parser.add_argument('--save_every', type=int, default=100,
+parser.add_argument('--save_every', type=int, default=500,
                     help='Save frequency. Number of passes between checkpoints of the model.')
 parser.add_argument('--init_from', type=str, default=None,
                     help="""continue training from saved model at this path (usually "save").
